@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Draggable, { DraggableEvent } from 'react-draggable';
+import React, { useState, SyntheticEvent } from 'react';
+import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import './Croply.css';
+
+enum Corner {
+  BottomLeft = 'BL',
+  BottomRight = 'BR',
+  TopLeft = 'TL',
+  TopRight = 'TR',
+}
 
 /*
  * The parameter `image` is mandatory and corresponds to the image being cropped.
@@ -9,36 +16,55 @@ import './Croply.css';
 */
 const Croply: React.FC<CroplyInt> = ({ image, minDimensions = { height: '50px', width: '50px' } }) => {
 
-  const [cropArea, setCropArea] = useState<CropRect>()
+  const [cropArea, setCropArea] = useState<CropRect>({ x: 0, y: 0, width: 0, height: 0 });
   
-  useEffect(() => {
-    
-  })
+  const handleDrag = (corner?: string) => (e: DraggableEvent, dragData: DraggableData) => {
+    const { x: dragX, y: dragY, deltaX, deltaY } = dragData;
+    const { height, width, x, y } = cropArea;
 
-  const handleDrag = (e: DraggableEvent) => {
-    console.log(e)
+    switch (corner) {
+      case Corner.BottomLeft:
+        setCropArea(state => ({ ...state, height: height + deltaY, width: width + deltaX, x: x + deltaX }));
+        break;
+      case Corner.BottomRight:
+        setCropArea(state => ({ ...state, height: state.height + deltaY, width: state.width + deltaX }));
+        break;
+      case Corner.TopLeft:
+        setCropArea({height: height + deltaY, width: width + deltaX, x: x + deltaX, y: y + deltaY });
+        break;
+      case Corner.TopRight:
+        console.log(Corner.TopRight, x, y, deltaX, deltaY )
+        setCropArea(state => ({ ...state, height: height + deltaY, width: width + deltaX, y: y + deltaY }));
+        break;
+      default:
+        console.log(x, y, deltaX, deltaY )
+        setCropArea(state => ({ ...state, x: x + deltaX, y: y + deltaY }));
+        break;
+    }
   }
 
-  const handleDragCornerStart = (corner: string) => () => {
-
-  }
-
-  const handleDragCornerStop = (corner: string) => () => {
-
+  const setImageDimensions = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+    const { clientHeight, clientWidth } = e.currentTarget
+    setCropArea({...cropArea, height: clientHeight, width: clientWidth})
   }
 
   return (
     <div className="croply">
-      <img src={image} />
-      <Draggable onDrag={handleDrag}>
-        <div className="croply__crop-area">
-          <Draggable onStart={handleDragCornerStart('bl')} onStop={handleDragCornerStop('bl')}>
-            <div className="croply__crop-area__bl"></div>
-          </Draggable>
-          <div className="croply__crop-area__br"></div>
-          <div className="croply__crop-area__tl"></div>
-          <div className="croply__crop-area__tr"></div>
-        </div>
+      <img alt="" src={image} onLoad={setImageDimensions} />
+      <Draggable bounds="parent" position={{ x: cropArea.x, y: cropArea.y }} onDrag={handleDrag()}>
+        <div className="croply__crop-area" style={{ height: cropArea.height, left: cropArea.x, top: cropArea.y, width: cropArea.width }}></div>
+      </Draggable>
+      <Draggable onDrag={handleDrag(Corner.BottomLeft)} position={{ x: cropArea.x, y: cropArea.height - 15 }}>
+        <div className="croply__crop-area__bl"></div>
+      </Draggable>
+      <Draggable onDrag={handleDrag(Corner.BottomRight)} position={{ x: cropArea.width - 15, y: cropArea.height - 15 }}>
+        <div className="croply__crop-area__br"></div>
+      </Draggable>
+      <Draggable onDrag={handleDrag(Corner.TopLeft)} position={{ x: cropArea.x, y: cropArea.y }}>
+        <div className="croply__crop-area__tl"></div>
+      </Draggable>
+      <Draggable onDrag={handleDrag(Corner.TopRight)} position={{ x: cropArea.width - 15, y: cropArea.y }}>
+        <div className="croply__crop-area__tr"></div>
       </Draggable>
     </div>
   );

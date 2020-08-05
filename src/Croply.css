@@ -1,4 +1,5 @@
 .croply {
+  display: inline-block;
   overflow: hidden;
   position: relative;
 }
@@ -14,6 +15,7 @@
   background: transparent;
   border: 2px solid #ccc;
   box-shadow: 0px 0px 0px 999em rgba(0, 0, 0, .5);
+  cursor: move;
   display: grid;
   height: 100%;
   position: absolute;
@@ -24,12 +26,36 @@
 .croply__crop-area__bl,
 .croply__crop-area__br,
 .croply__crop-area__tl,
-.croply__crop-area__bl {
+.croply__crop-area__tr {
+  cursor: nesw-resize;
   height: 15px;
+  left: 0px;
+  position: absolute;
+  top: 0px;
   width: 15px;
+}
+
+.croply__crop-area__br,
+.croply__crop-area__tl {
+  cursor: nwse-resize;
 }
 
 .croply__crop-area__bl {
   border-bottom: solid 2px #fff;
   border-left: solid 2px #fff;
+}
+
+.croply__crop-area__br {
+  border-bottom: solid 2px #fff;
+  border-right: solid 2px #fff;
+}
+
+.croply__crop-area__tl {
+  border-top: solid 2px #fff;
+  border-left: solid 2px #fff;
+}
+
+.croply__crop-area__tr {
+  border-top: solid 2px #fff;
+  border-right: solid 2px #fff;
 }
