@@ -1,10 +1,12 @@
 .croply {
+  box-sizing: border-box;
   display: inline-block;
   overflow: hidden;
   position: relative;
 }
 
 .croply > img {
+  display: block;
   left: 0px;
   max-width: 1000px;
   position: relative;
